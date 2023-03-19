@@ -1,20 +1,32 @@
 const std = @import("std");
 const testing = std.testing;
 
-fn parseVariant(b :[]const u8) i32 {
-    return b[0];
+fn parseVariant(b :[]const u8) u64 {
+    var val : u64 = 0;
+
+    for (b) |byte, i|
+    {
+        val += @as(u64, (byte & 0b01111111)) << @truncate(u6, 7 * i);
+    }
+
+    return val;
 }
 
 test "parseVariant" {
-    var list = std.ArrayList(u8).init(std.testing.allocator);
-    try list.append(0b00000001);
-
-    try testing.expect(parseVariant(list.items) == 1);
-
-    list.clearRetainingCapacity();
-    try list.append(0b01111111);
-    try testing.expect(parseVariant(list.items) == 127);
-    list.deinit();
-    // try testing.expect(parseVariant(0b1000000000000001) == 128);
-
+    {
+        const bytes = [_]u8{0b00000001};
+        try testing.expect(parseVariant(&bytes) == 1);
+    }
+    {
+        const bytes = [_]u8{0b01111111};
+        try testing.expect(parseVariant(&bytes) == 127);
+    }
+    {
+        const bytes = [_]u8{0b10000000, 0b00000001};
+        try testing.expect(parseVariant(&bytes) == 128);
+    }
+    {
+        const bytes = [_]u8{0b10000000, 0b00000010};
+        try testing.expect(parseVariant(&bytes) == 256);
+    }
 }
