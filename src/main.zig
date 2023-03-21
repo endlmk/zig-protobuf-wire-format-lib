@@ -26,6 +26,10 @@ test "parseVariant" {
         try testing.expect(parseVariant(&bytes) == 128);
     }
     {
+        const bytes = [_]u8{0b10010110, 0b00000001};
+        try testing.expect(parseVariant(&bytes) == 150);
+    }
+    {
         const bytes = [_]u8{0b10000000, 0b00000010};
         try testing.expect(parseVariant(&bytes) == 256);
     }
